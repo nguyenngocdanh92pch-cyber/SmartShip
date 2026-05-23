@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    # 1. Sửa lại tên database trỏ về smartship_db
+    url: jdbc:postgresql://localhost:5432/user_profiles_db
+    username: postgres
+    password: Abc123456
+    # 2. Thêm dòng khai báo Driver
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    # 3. Thêm cấu hình Dialect cho Postgres
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+server:
+  port: 8082 # Nhớ giữ cổng 8082 để không đụng Auth Service nhé
+gcp:
+  bucket-name: smartship-storage-cuong123 # Thay bằng tên bạn đã đặt

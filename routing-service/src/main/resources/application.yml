@@ -1,0 +1,6 @@
+server:
+  port: 8086
+
+# Cấu hình Mapbox
+mapbox:
+  access-token: "pk.eyJ1IjoibmdvY2RhbmgwMjAzMjAwNSIsImEiOiJjbW85ZmluejMwOGs4MndvaXU1MDc4aG1xIn0.R9tJL97Mm909Xwt1GE4I3w"
