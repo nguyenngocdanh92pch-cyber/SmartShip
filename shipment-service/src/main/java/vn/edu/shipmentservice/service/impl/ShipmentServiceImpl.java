@@ -55,7 +55,8 @@ public class ShipmentServiceImpl implements ShipmentService {
                 request.getPickupLongitude(),
                 request.getPickupLatitude(),
                 request.getDeliveryLongitude(),
-                request.getDeliveryLatitude()
+                request.getDeliveryLatitude(),
+                request.getVehicleType()
         );
 
         Point location = geometryFactory.createPoint(new Coordinate(request.getPickupLongitude(), request.getPickupLatitude()));
@@ -72,6 +73,7 @@ public class ShipmentServiceImpl implements ShipmentService {
                 .deliveryLocation(deliveryLoc)
                 .packageDescription(request.getPackageDescription())
                 .packageValue(request.getPackageValue())
+                .vehicleType(request.getVehicleType())
                 .shippingCost(estimate.cost())
                 .status(ShipmentStatus.PENDING)
                 .build();
@@ -306,6 +308,7 @@ public class ShipmentServiceImpl implements ShipmentService {
                 .deliveryLatitude(shipment.getDeliveryLocation() != null ? shipment.getDeliveryLocation().getY() : 0.0)
                 .packageDescription(shipment.getPackageDescription())
                 .packageValue(shipment.getPackageValue())
+                .vehicleType(shipment.getVehicleType())
                 .shippingCost(shipment.getShippingCost())
                 .status(shipment.getStatus())
                 .createdAt(shipment.getCreatedAt())

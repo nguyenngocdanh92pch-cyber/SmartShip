@@ -15,6 +15,13 @@ public class UserProfile {
     @Column(name = "user_id")
     private Long userId;
 
+    // UserProfile.java
+    @Column(name = "full_name")
+    private String fullName;
+
+    @Column(name = "phone")
+    private String phone;
+
     private String avatarUrl;
     private String defaultAddress;
     private String idCardImageUrl;

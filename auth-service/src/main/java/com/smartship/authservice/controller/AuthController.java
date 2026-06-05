@@ -1,8 +1,6 @@
 package com.smartship.authservice.controller;
 
-import com.smartship.authservice.dto.LoginRequest;
-import com.smartship.authservice.dto.RegisterRequest;
-import com.smartship.authservice.dto.AuthResponse;
+import com.smartship.authservice.dto.*;
 import com.smartship.authservice.entity.User;
 import com.smartship.authservice.repository.UserRepository;
 import com.smartship.authservice.service.AuthService;
@@ -69,5 +67,28 @@ public class AuthController {
 
         // Trả thẳng đối tượng đó về phía Client (Mobile/Web)
         return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/update-info/{id}")
+    public ResponseEntity<?> updateUserInfo(@PathVariable Long id, @RequestBody UpdateProfileRequest request) {
+        try {
+            // Gọi hàm update đã viết trong AuthService
+            authService.updateUserInfo(id, request.getFullName(), request.getPhone());
+            return ResponseEntity.ok("Cập nhật thông tin thành công và đã phát tín hiệu đồng bộ!");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lỗi: " + e.getMessage());
+        }
+    }
+
+    @PutMapping("/change-password/{id}")
+    public ResponseEntity<?> changePassword(@PathVariable Long id, @RequestBody ChangePasswordRequest request) {
+        try {
+            // Gọi hàm xử lý dưới tầng Service
+            authService.changePassword(id, request);
+            return ResponseEntity.ok("Đổi mật khẩu thành công!");
+        } catch (Exception e) {
+            // Nếu sai mật khẩu cũ hoặc không khớp, nó sẽ ném lỗi 400 Bad Request về cho Flutter
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 }

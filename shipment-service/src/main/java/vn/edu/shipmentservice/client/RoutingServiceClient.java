@@ -14,11 +14,12 @@ public class RoutingServiceClient {
     // Gọi qua cổng 8080 của API Gateway. Gateway sẽ tự biết đẩy sang Routing Service.
     private final String API_GATEWAY_URL = "http://localhost:8080/routing";
 
-    // Đã cập nhật lại tham số để truyền 4 tọa độ cho OSRM xử lý
-    public RouteEstimateDTO getEstimate(double originLng, double originLat, double destLng, double destLat) {
+    // 🌟 Đã thêm String vehicleType vào tham số
+    public RouteEstimateDTO getEstimate(double originLng, double originLat, double destLng, double destLat, String vehicleType) {
 
-        String url = String.format("%s/estimate?originLng=%s&originLat=%s&destLng=%s&destLat=%s",
-                API_GATEWAY_URL, originLng, originLat, destLng, destLat);
+        // 🌟 Nối thêm &vehicleType=%s vào chuỗi URL format
+        String url = String.format("%s/estimate?originLng=%s&originLat=%s&destLng=%s&destLat=%s&vehicleType=%s",
+                API_GATEWAY_URL, originLng, originLat, destLng, destLat, vehicleType);
 
         // Gọi API GET và tự động map kết quả JSON trả về vào object RouteEstimateDTO
         return restTemplate.getForObject(url, RouteEstimateDTO.class);

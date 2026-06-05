@@ -1,5 +1,7 @@
 package com.smartship.userservice.listener;
 
+import com.smartship.userservice.config.RabbitMQConfig;
+import com.smartship.userservice.dto.UserUpdatedEvent;
 import com.smartship.userservice.entity.UserProfile;
 import com.smartship.userservice.service.UserProfileService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -32,6 +34,32 @@ public class UserProfileListener {
         } catch (Exception e) {
             // Nếu có lỗi (vd: rớt mạng CSDL), RabbitMQ sẽ tự động retry hoặc đưa vào hàng đợi lỗi (Dead Letter Queue) nếu cấu hình
             System.err.println("Lỗi khi tạo profile: " + e.getMessage());
+        }
+    }
+
+    @RabbitListener(queues = RabbitMQConfig.PROFILE_UPDATE_QUEUE)
+    public void receiveProfileUpdateRequest(UserUpdatedEvent event) {
+        System.out.println("Nhận yêu cầu CẬP NHẬT profile cho User ID: " + event.getUserId());
+
+        try {
+            // Tìm profile hiện tại trong database user-service
+            UserProfile existingProfile = profileService.getProfile(event.getUserId());
+
+            if (existingProfile != null) {
+                // Ghi đè tên và sđt mới
+                existingProfile.setFullName(event.getFullName());
+                existingProfile.setPhone(event.getPhone());
+
+                // Lưu lại vào database
+                profileService.saveOrUpdateProfile(existingProfile);
+                System.out.println("Đã đồng bộ cập nhật thành công cho User ID: " + event.getUserId());
+            } else {
+                System.err.println("Không tìm thấy profile của User ID: " + event.getUserId() + " để cập nhật!");
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi khi đồng bộ cập nhật profile: " + e.getMessage());
+            // Có thể throw lại Exception để RabbitMQ tự động retry (đẩy lại vào hàng đợi)
+            throw e;
         }
     }
 }

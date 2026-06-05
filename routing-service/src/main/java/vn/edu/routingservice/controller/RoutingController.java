@@ -20,10 +20,24 @@ public class RoutingController {
             @RequestParam double originLng,
             @RequestParam double originLat,
             @RequestParam double destLng,
+            @RequestParam double destLat,
+            @RequestParam String vehicleType) { // 🌟 Nhận thêm loại phương tiện từ người gửi chọn
+
+        // Truyền thêm loại xe và tọa độ điểm đi vào dịch vụ tính toán
+        RoutingService.RouteEstimate estimate = routingService.calculateDistanceAndCost(
+                originLng, originLat, destLng, destLat, vehicleType);
+        return ResponseEntity.ok(estimate);
+    }
+
+    @GetMapping("/driver/estimate")
+    public ResponseEntity<RoutingService.RouteEstimate> estimateRoute(
+            @RequestParam double originLng,
+            @RequestParam double originLat,
+            @RequestParam double destLng,
             @RequestParam double destLat) {
 
         // Truyền 4 tọa độ xuống cho Service tính toán
-        RoutingService.RouteEstimate estimate = routingService.calculateDistanceAndCost(originLng, originLat, destLng, destLat);
+        RoutingService.RouteEstimate estimate = routingService.calculateDistanceForDriver(originLng, originLat, destLng, destLat);
         return ResponseEntity.ok(estimate);
     }
 

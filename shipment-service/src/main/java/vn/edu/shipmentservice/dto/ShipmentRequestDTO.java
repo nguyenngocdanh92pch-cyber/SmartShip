@@ -18,4 +18,5 @@ public class ShipmentRequestDTO {
     private String packageDescription;
     private BigDecimal packageValue;
     private List<String> imageUrls; // Danh sách URL ảnh [cite: 143]
+    private String vehicleType;
 }

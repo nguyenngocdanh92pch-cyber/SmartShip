@@ -30,4 +30,5 @@ public class ShipmentResponseDTO {
     private LocalDateTime createdAt;
     private List<String> imageUrls;
     private Integer rating;
+    private String vehicleType;
 }

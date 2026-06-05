@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface RoutingService {
 
-    RouteEstimate calculateDistanceAndCost(double originLng, double originLat, double destLng, double destLat);
+    RouteEstimate calculateDistanceAndCost(double originLng, double originLat, double destLng, double destLat, String vehicleType);
 
     DirectionsRoute optimizeDriverRoute(String coordinates);
 
@@ -16,4 +16,6 @@ public interface RoutingService {
 
     // THÊM DÒNG NÀY VÀO ĐỂ SỬA LỖI:
     record DirectionsRoute(String message, String waypointsData) {}
+
+    RouteEstimate calculateDistanceForDriver(double originLng, double originLat, double destLng, double destLat);
 }
