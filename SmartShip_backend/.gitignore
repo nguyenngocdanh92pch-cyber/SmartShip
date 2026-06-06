@@ -1,0 +1,3 @@
+notification-service/src/main/resources/firebase-config.json
+shipment-service/src/main/resources/gcp-service-account.json
+user-service/src/main/resources/gcp-credential.json

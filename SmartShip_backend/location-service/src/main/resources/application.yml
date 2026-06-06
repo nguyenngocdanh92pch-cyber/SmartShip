@@ -1,0 +1,28 @@
+server:
+  port: 8084
+
+spring:
+  # 1. Cấu hình PostgreSQL (Lưu dữ liệu có cấu trúc)
+  datasource:
+    url: jdbc:postgresql://localhost:5432/smartship_db
+    username: postgres
+    password: Abc123456
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  data:
+    # 2. Cấu hình MongoDB (Lưu lịch sử GPS - Nhiệm vụ của Xuân)
+    mongodb:
+      uri: mongodb://localhost:27017/smartship_location
+      # Nếu MongoDB của bạn có đặt mật khẩu, dùng định dạng sau:
+      # uri: mongodb://root:Abc123456@localhost:27017/smartship_location
+
+    # 3. Cấu hình Redis (Truyền tin Real-time - Nhiệm vụ của Xuân)
+    redis:
+      host: localhost
+      port: 6379
+      password: # Thường Redis local để trống, nếu có đặt thì điền Abc123456 vào đây

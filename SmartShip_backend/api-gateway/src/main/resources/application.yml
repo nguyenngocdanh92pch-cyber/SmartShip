@@ -1,0 +1,58 @@
+server:
+  port: 8080 # Cổng duy nhất giao tiếp với thế giới bên ngoài
+  address: 0.0.0.0
+
+spring:
+  application:
+    name: api-gateway
+  codec:
+    max-in-memory-size: 15MB
+  cloud:
+    gateway:
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+      routes:
+        # Lối đi số 1: Dành cho Shipment Service
+        - id: shipment-service
+          uri: http://localhost:8083    # Đích đến
+          predicates:
+            - Path=/shipments/** # Nếu URL bắt đầu bằng /shipments thì rẽ vào đây
+
+        # Lối đi số 2: Dành cho Routing Service
+        - id: routing-service
+          uri: http://localhost:8086    # Đích đến
+          predicates:
+            - Path=/routing/** # Nếu URL bắt đầu bằng /routing thì rẽ vào đây
+
+        # Lối đi số 3: Dành cho Auth Service
+        - id: auth-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/auth/**
+
+        # Lối đi số 4: Dành cho User Service
+        - id: user-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/users/**
+
+        # Lối đi số 5: Dành cho Location Service
+        - id: location-service
+          uri: http://localhost:8084
+          predicates:
+            - Path=/location/**
+
+        # Lối đi số 6: Dành cho Notification Service
+        - id: notification-service
+          uri: http://localhost:8085
+          predicates:
+            - Path=/api/notifications/** # 🎯 ĐÃ THÊM CHỮ /api VÀO ĐÂY
+
+        - id: chatbot-service
+          uri: http://localhost:8087
+          predicates:
+            - Path=/chatbot/**

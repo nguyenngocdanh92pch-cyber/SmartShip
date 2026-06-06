@@ -1,0 +1,123 @@
+import 'package:flutter/material.dart';
+
+// 🚀 NẠP VŨ KHÍ: Thêm các thư viện Firebase
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
+// 🎯 THÊM THƯ VIỆN NÀY ĐỂ ÉP RỚT CHUÔNG LÚC ĐANG MỞ APP
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+// 🎯 IMPORT FILE CẤU HÌNH TỰ ĐỘNG CỦA FIREBASE (Lấy từ code của Xuân)
+import 'firebase_options.dart'; 
+
+// Import màn hình đăng nhập
+import 'features/auth/views/login_screen.dart';
+
+// 🎯 KHỞI TẠO CÔNG CỤ VẼ THÔNG BÁO CỤC BỘ
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+// ==============================================================
+// 🎯 HÀM GÁC CỔNG KHI APP TẮT MÀN HÌNH HOẶC CHẠY NGẦM
+// (Bắt buộc phải nằm ngoài cùng, TRÊN hàm main)
+// ==============================================================
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // Đánh thức Firebase dậy để xử lý thông báo lúc màn hình đang tắt
+  // Gắn options tự động để tránh lỗi
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform); 
+  print("🔔 TING TING! CÓ THÔNG BÁO NGẦM RỚT XUỐNG: ${message.notification?.title}");
+}
+
+void main() async {
+  // 🚀 BẮT BUỘC: Giúp Flutter gắn kết với hệ thống điện thoại trước khi gọi Firebase
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // 🚀 ĐÁNH THỨC FIREBASE BẰNG CẤU HÌNH TỰ ĐỘNG (Lấy từ code của Xuân cho chuẩn 100%)
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // ==============================================================
+  // 🎯 SETUP KÊNH THÔNG BÁO ƯU TIÊN CAO ĐỂ ÉP NÓ RỚT XUỐNG
+  // ==============================================================
+  const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_launcher');
+  const InitializationSettings initializationSettings = InitializationSettings(android: initializationSettingsAndroid);
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
+  const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'high_importance_channel', // id
+    'High Importance Notifications', // title
+    description: 'Kênh này dùng để ép thông báo rớt xuống.', // description
+    importance: Importance.high,
+  );
+  
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+
+  // ==============================================================
+  // 🎯 XIN QUYỀN GỬI THÔNG BÁO (CỰC KỲ QUAN TRỌNG CHO ANDROID 13+)
+  // ==============================================================
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+  await messaging.requestPermission(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
+  // ==============================================================
+  // 🎯 GIAO NHIỆM VỤ CHO NGƯỜI GÁC CỔNG
+  // ==============================================================
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  // ==============================================================
+  // 🚀 NÂNG CẤP: HÀM HỨNG THÔNG BÁO KHI APP ĐANG MỞ (Sáng màn hình)
+  // ==============================================================
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    RemoteNotification? notification = message.notification;
+    AndroidNotification? android = message.notification?.android;
+
+    // Nếu có thông báo tới lúc đang mở App -> Lôi đồ nghề ra tự vẽ cái bảng rớt xuống
+    if (notification != null && android != null) {
+      print('🔔 TING TING! TỰ VẼ BẢNG THÔNG BÁO KHI ĐANG MỞ APP: ${notification.title}');
+      
+      flutterLocalNotificationsPlugin.show(
+        notification.hashCode,
+        notification.title,
+        notification.body,
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            channel.id,
+            channel.name,
+            channelDescription: channel.description,
+            icon: '@mipmap/ic_launcher', // Đảm bảo trong thư mục android/app/src/main/res/mipmap có file ic_launcher.png
+            importance: Importance.high,
+            priority: Priority.high,
+          ),
+        ),
+      );
+    }
+  });
+
+  runApp(const MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Ứng dụng Giao hàng',
+      debugShowCheckedModeBanner: false, // Tắt chữ "DEBUG" ở góc trên bên phải
+      theme: ThemeData(
+        // Cấu hình phông chữ và màu sắc mặc định cho toàn app
+        primarySwatch: Colors.blue,
+        fontFamily: 'Roboto', 
+        useMaterial3: true, // Sử dụng Material Design 3 hiện đại
+      ),
+      // Màn hình đầu tiên xuất hiện khi mở App là LoginScreen
+      home: const LoginScreen(),
+    );
+  }
+}

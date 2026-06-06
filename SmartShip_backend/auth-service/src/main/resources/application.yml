@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    # Cấu trúc: jdbc:postgresql://<địa chỉ IP>:<cổng>/<tên_database>
+    url: jdbc:postgresql://localhost:5432/user_db
+    username: postgres       # Tên đăng nhập Postgres của bạn
+    password: Abc123456            # Mật khẩu Postgres của bạn
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      # 'update': Tự động tạo bảng hoặc thêm cột vào DB nếu code Java thay đổi
+      ddl-auto: update
+    show-sql: true           # Hiện câu lệnh SQL dưới console để dễ debug
+    properties:
+      hibernate:
+        # Giúp Hibernate hiểu đúng các kiểu dữ liệu đặc thù của Postgres
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+server:
+  port: 8081                 # Cổng chạy của Auth Service

@@ -1,0 +1,68 @@
+server:
+  port: 8083
+  # 🔥 BỔ SUNG CỰC KỲ QUAN TRỌNG: Hiển thị chi tiết lỗi Java ra Frontend để debug lỗi 500
+  error:
+    include-message: always
+    include-binding-errors: always
+    include-stacktrace: never # Để 'never' hoặc 'always' nếu muốn xem cả vết code sập
+
+spring:
+  application:
+    name: shipment-service
+
+  datasource:
+    # Cấu trúc URL: jdbc:postgresql://[host]:[port]/[tên_database]
+    url: jdbc:postgresql://localhost:5432/shipment_service_db
+    username: postgres
+    password: Abc123456
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    # Cấu hình Dialect rất quan trọng để Hibernate hiểu được cú pháp của PostGIS
+    # Dùng dialect mặc định này cho Spring Boot 3 / Hibernate 6 để hỗ trợ PostGIS
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      # ddl-auto: update giúp tự động tạo bảng (shipments, package_images) từ Entity của bạn
+      ddl-auto: update
+    show-sql: true              # Bật cái này lên để xem log SQL, rất tiện khi debug
+    properties:
+      hibernate:
+        format_sql: true
+        # Thêm thuộc tính giúp Hibernate tự động map chuẩn tên bảng/khóa ngoại tránh lỗi cú pháp SQL
+        globally_quoted_identifiers: true
+    # Đảm bảo JPA khởi động xong trước khi chạy các lệnh SQL khởi tạo (nếu có)
+    defer-datasource-initialization: true
+
+  # Tắt tính năng tự động tìm file Docker Compose để tránh lỗi khi khởi động
+  docker:
+    compose:
+      enabled: false
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 15MB
+
+google:
+  cloud:
+    storage:
+      bucket-name: smartship-shipment-danh
+      project-id: smartship-backend
+      credentials-path: classpath:gcp-service-account.json
+
+# ================= VNPAY CONFIG =================
+vnpay:
+  tmnCode: 18LYBG10
+  hashSecret: 803GSXDSSBGRF9CX9CLPO659AA6SF4PR
+  payUrl: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+  # Link này VNPay sẽ gọi về sau khi khách quét mặt hoặc quẹt thẻ xong (Qua cổng API Gateway 8080)
+  returnUrl: http://192.168.1.36:8080/shipments/payments/vnpay-return
+
+# 🔥 BỔ SUNG: Cấu hình Log để bắt bệnh khi bấm nút tạo chiến dịch/voucher bị lỗi
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: DEBUG         # In ra toàn bộ câu lệnh SQL chạy ngầm
+    org.hibernate.orm.jdbc.bind: TRACE # In ra chính xác các giá trị (tham số) truyền vào DB
+    org.springframework.web: DEBUG   # Theo dõi sát sao các request gọi từ Frontend vào Controller
