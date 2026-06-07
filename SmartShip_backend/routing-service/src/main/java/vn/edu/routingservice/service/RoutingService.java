@@ -11,10 +11,8 @@ public interface RoutingService {
 
     DirectionsRoute optimizeDriverRoute(String coordinates);
 
-    // Record cũ đã có
     record RouteEstimate(String distance, String duration, BigDecimal cost) {}
 
-    // THÊM DÒNG NÀY VÀO ĐỂ SỬA LỖI:
     record DirectionsRoute(String message, String waypointsData) {}
 
     RouteEstimate calculateDistanceForDriver(double originLng, double originLat, double destLng, double destLat);

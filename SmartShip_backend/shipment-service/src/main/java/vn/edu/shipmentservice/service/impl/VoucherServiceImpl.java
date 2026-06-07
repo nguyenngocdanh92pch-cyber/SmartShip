@@ -15,7 +15,6 @@ public class VoucherServiceImpl implements VoucherService {
 
     @Override
     public Voucher createVoucher(Voucher voucher) {
-        // Có thể thêm logic kiểm tra trùng mã Code ở đây nếu thích
         return voucherRepository.save(voucher);
     }
 

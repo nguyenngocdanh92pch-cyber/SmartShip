@@ -56,7 +56,6 @@ public class AuthController {
         User savedUser = userRepository.save(newUser);
 
         // 3. Đóng gói dữ liệu gửi sang RabbitMQ (user-service)
-        // 🌟 NÂNG CẤP: Gửi kèm luôn cả ảnh CCCD, Bằng lái và Biển số xe để Admin duyệt
         Map<String, Object> profileData = new HashMap<>();
         profileData.put("userId", savedUser.getId());
         profileData.put("role", savedUser.getRole().name());
@@ -87,14 +86,9 @@ public class AuthController {
         }
     }
 
-    // =========================================================
-    // API MỚI BỔ SUNG TỪ BẠN BỒ
-    // =========================================================
-
     @PutMapping("/update-info/{id}")
     public ResponseEntity<?> updateUserInfo(@PathVariable Long id, @RequestBody UpdateProfileRequest request) {
         try {
-            // Gọi hàm update đã viết trong AuthService
             authService.updateUserInfo(id, request.getFullName(), request.getPhone());
             return ResponseEntity.ok("Cập nhật thông tin thành công và đã phát tín hiệu đồng bộ!");
         } catch (Exception e) {
@@ -105,7 +99,6 @@ public class AuthController {
     @PutMapping("/change-password/{id}")
     public ResponseEntity<?> changePassword(@PathVariable Long id, @RequestBody ChangePasswordRequest request) {
         try {
-            // Gọi hàm xử lý dưới tầng Service
             authService.changePassword(id, request);
             return ResponseEntity.ok("Đổi mật khẩu thành công!");
         } catch (Exception e) {

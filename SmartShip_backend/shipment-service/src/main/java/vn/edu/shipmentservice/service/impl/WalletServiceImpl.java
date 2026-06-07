@@ -65,6 +65,6 @@ public class WalletServiceImpl implements WalletService {
         tx.setDescription("Rút tiền về ngân hàng: " + bankInfo);
         transactionRepository.save(tx);
 
-        return true; // Thành công
+        return true;
     }
 }

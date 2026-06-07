@@ -12,8 +12,6 @@ import java.util.List;
 
 @Repository
 public interface UserProfileRepository extends JpaRepository<UserProfile, Long> {
-    // JpaRepository đã cung cấp sẵn các hàm save, findById, delete...
-    // VŨ KHÍ QUÉT DIỆN RỘNG: Cập nhật rank cho TOÀN BỘ khách hàng chỉ với 1 câu lệnh
     @Modifying
     @Transactional
     @Query(value = "UPDATE user_profiles SET tier = CASE " +

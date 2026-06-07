@@ -14,8 +14,8 @@ public class TierConfig {
     private Long id;
 
     @Column(name = "tier_name", unique = true)
-    private String tierName; // BRONZE, SILVER, GOLD, PLATINUM, DIAMOND
+    private String tierName;
 
     @Column(name = "min_points")
-    private Integer minPoints; // Số điểm tối thiểu để đạt hạng này
+    private Integer minPoints;
 }

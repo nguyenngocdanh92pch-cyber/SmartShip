@@ -3,9 +3,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/smartship_db
+    url: jdbc:postgresql://localhost:5432/notification_service_db
     username: postgres
-    password: Abc123456 # Mật khẩu của bạn
+    password: Abc123456
   jpa:
     hibernate:
       ddl-auto: update

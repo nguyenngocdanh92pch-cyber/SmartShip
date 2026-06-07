@@ -8,8 +8,10 @@ import com.example.notification_service.entity.NotificationLog;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/notifications")
@@ -19,6 +21,7 @@ public class NotificationController {
 
     private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
+    private final RestTemplate restTemplate;
 
     // ==========================================
     // 1. API CHO ADMIN WEB (Gửi thông báo)

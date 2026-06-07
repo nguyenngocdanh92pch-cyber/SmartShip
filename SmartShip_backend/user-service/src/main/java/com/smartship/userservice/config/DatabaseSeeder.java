@@ -14,7 +14,6 @@ public class DatabaseSeeder {
     @Bean
     public CommandLineRunner seedTierData(TierConfigRepository repository) {
         return args -> {
-            // 🎯 ĐÃ THÊM LỆNH IF: Chỉ reset nếu DB đang trống hoặc đang dùng hệ thống 4 Rank cũ
             if (repository.count() < 5) {
 
                 // Xóa sạch hệ thống cũ

@@ -541,7 +541,7 @@ class _EarningsScreenState extends State<EarningsScreen>
     double maxY = currentData!.chartData
         .map((e) => e.value)
         .reduce((a, b) => a > b ? a : b);
-    if (maxY == 0) maxY = 10;
+    if (maxY <= 0) maxY = 10;
 
     return BarChart(
       BarChartData(

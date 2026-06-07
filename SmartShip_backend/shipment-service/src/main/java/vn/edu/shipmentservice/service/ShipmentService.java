@@ -10,9 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface ShipmentService {
-
+    void notifyDriverArrivedAtPickup(Long shipmentId, Long driverId);
     // Tạo đơn hàng mới
-// Sửa thành như thế này:
     ShipmentResponseDTO createShipment(Long senderId, ShipmentRequestDTO request, List<MultipartFile> imageFiles, String voucherCode);
     // Lấy lịch sử đơn hàng của người gửi
     List<ShipmentResponseDTO> getHistoryBySender(Long senderId);

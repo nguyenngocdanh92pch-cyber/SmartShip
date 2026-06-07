@@ -179,6 +179,16 @@ public class ShipmentController {
         return ResponseEntity.ok(response);
     }
 
+    // Thêm API này vào ShipmentController.java
+    @PostMapping("/{id}/arrived-pickup")
+    public ResponseEntity<String> notifyArrivedPickup(
+            @PathVariable("id") Long shipmentId,
+            @RequestHeader("X-User-Id") Long driverId) {
+
+        shipmentService.notifyDriverArrivedAtPickup(shipmentId, driverId);
+        return ResponseEntity.ok("Đã thông báo cho người gửi là tài xế đã đến lấy hàng.");
+    }
+
     // ==============================================================
     // 3. CÁC API HỖ TRỢ ADMIN & QUẢN LÝ Hệ THỐNG
     // ==============================================================

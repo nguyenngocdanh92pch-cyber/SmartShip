@@ -49,16 +49,19 @@ public class EarningServiceImpl implements EarningService {
         List<Shipment> shipments = shipmentRepository.findCompletedByDriverInPeriod(driverId, ShipmentStatus.DELIVERED, startDate, endDate);
 
         // 2. Kéo Lịch sử Giao dịch Ví (Để tính Tổng tiền & Vẽ biểu đồ)
-        List<WalletTransaction> transactions = transactionRepository.findTransactionsByPeriod(driverId, startDate, endDate);
+        List<WalletTransaction> transactions = transactionRepository.findTransactionsByPeriod(driverId, startDate, endDate)
+                .stream()
+                .filter(t -> t.getAmount() != null && t.getAmount().doubleValue() > 0)
+                .collect(Collectors.toList());
 
         EarningDashboardResponse response = new EarningDashboardResponse();
 
-        // 🌟 TÍNH TOÁN DỰA TRÊN WALLET TRANSACTION
+        //  TÍNH TOÁN DỰA TRÊN WALLET TRANSACTION
         double totalEarnings = transactions.stream()
                 .mapToDouble(t -> t.getAmount() != null ? t.getAmount().doubleValue() : 0.0)
                 .sum();
 
-        // 🌟 TÍNH TOÁN DỰA TRÊN SHIPMENT
+        //  TÍNH TOÁN DỰA TRÊN SHIPMENT
         int totalDeliveries = shipments.size();
 
         response.setTotalEarnings(totalEarnings);

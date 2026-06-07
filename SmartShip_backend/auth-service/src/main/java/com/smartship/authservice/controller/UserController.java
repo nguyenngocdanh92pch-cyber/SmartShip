@@ -28,7 +28,6 @@ public class UserController {
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            // Lấy fullName từ Entity và đóng gói vào DTO
             UserAuthResponse response = new UserAuthResponse(user.getId(), user.getFullName());
             return ResponseEntity.ok(response);
         } else {
@@ -36,4 +35,6 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
+
+
 }

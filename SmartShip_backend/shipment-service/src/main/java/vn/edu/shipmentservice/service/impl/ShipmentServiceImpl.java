@@ -21,6 +21,7 @@ import vn.edu.shipmentservice.entity.PackageImage;
 import vn.edu.shipmentservice.entity.Shipment;
 import vn.edu.shipmentservice.entity.ShipmentStatus;
 import vn.edu.shipmentservice.repository.ShipmentRepository;
+import vn.edu.shipmentservice.repository.VoucherRepository;
 import vn.edu.shipmentservice.service.GcsStorageService;
 import vn.edu.shipmentservice.service.ShipmentService;
 import vn.edu.shipmentservice.service.WalletService;
@@ -46,6 +47,8 @@ public class ShipmentServiceImpl implements ShipmentService {
     private final GcsStorageService gcsStorageService;
     private final WalletService walletService;
     private final AuthServiceClient authServiceClient;
+    VoucherRepository voucherRepository;
+
 
     @Autowired
     private UserServiceClient userServiceClient;
@@ -60,6 +63,40 @@ public class ShipmentServiceImpl implements ShipmentService {
                 request.getDeliveryLatitude(),
                 request.getVehicleType()
         );
+
+        // =======================================================
+        // 🚀 XỬ LÝ TRỪ TIỀN VOUCHER TỪ DATABASE THẬT
+        // =======================================================
+        BigDecimal finalCost = estimate.cost();
+
+        if (voucherCode != null && !voucherCode.trim().isEmpty()) {
+            try {
+                // 1. Dùng Optional để hứng kết quả từ DB
+                var voucherOpt = voucherRepository.findByCode(voucherCode);
+
+                // 2. Kiểm tra xem trong hộp có Voucher không
+                if (voucherOpt.isPresent()) {
+                    var voucher = voucherOpt.get(); // Lấy đối tượng Voucher ra khỏi hộp
+
+                    // 3. Lấy số tiền giảm giá từ Entity (Tên hàm đúng là getDiscountAmount)
+                    BigDecimal discountAmount = voucher.getDiscountAmount();
+
+                    finalCost = finalCost.subtract(discountAmount);
+
+                    // 4. Bắt lỗi không cho phép âm tiền
+                    if (finalCost.compareTo(BigDecimal.ZERO) < 0) {
+                        finalCost = BigDecimal.ZERO;
+                    }
+
+                    log.info("✅ Áp dụng mã {}: Giá gốc {} - Giảm {} = Cần thu {}",
+                            voucherCode, estimate.cost(), discountAmount, finalCost);
+                } else {
+                    log.warn("❌ Khách nhập mã {} nhưng không tìm thấy trong DB!", voucherCode);
+                }
+            } catch (Exception e) {
+                log.error("Lỗi khi xử lý voucher {}: {}", voucherCode, e.getMessage());
+            }
+        }
 
         Point location = geometryFactory.createPoint(new Coordinate(request.getPickupLongitude(), request.getPickupLatitude()));
         location.setSRID(4326);
@@ -76,7 +113,7 @@ public class ShipmentServiceImpl implements ShipmentService {
                 .packageDescription(request.getPackageDescription())
                 .packageValue(request.getPackageValue())
                 .vehicleType(request.getVehicleType())
-                .shippingCost(estimate.cost())
+                .shippingCost(finalCost)
                 .status(ShipmentStatus.WAITING_PAYMENT)
                 .build();
 
@@ -100,6 +137,7 @@ public class ShipmentServiceImpl implements ShipmentService {
         Shipment savedShipment = shipmentRepository.save(shipment);
         return mapToDTO(savedShipment);
     }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -358,6 +396,34 @@ public class ShipmentServiceImpl implements ShipmentService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Trạng thái tiếp theo phải là LẤY HÀNG (PICKED_UP).");
         }
     }
+
+    @Override
+    public void notifyDriverArrivedAtPickup(Long shipmentId, Long driverId) {
+        Shipment shipment = shipmentRepository.findById(shipmentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Không tìm thấy đơn hàng"));
+
+        // Kiểm tra quyền: Chỉ tài xế đang nhận đơn này mới được bấm
+        if (shipment.getDriverId() == null || !shipment.getDriverId().equals(driverId)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Bạn không có quyền thao tác trên đơn hàng này!");
+        }
+
+        try {
+            org.springframework.web.client.RestTemplate restTemplate = new org.springframework.web.client.RestTemplate();
+            String notificationUrl = "http://localhost:8085/api/notifications/send";
+
+            Map<String, Object> notifRequest = new HashMap<>();
+            notifRequest.put("userId", shipment.getSenderId());
+            notifRequest.put("title", "Tài xế đã đến nơi! 🛵");
+            notifRequest.put("body", "Tài xế đã đến điểm lấy hàng cho đơn #" + shipmentId + ". Bạn vui lòng chuẩn bị hàng hóa để giao cho tài xế nhé!");
+            notifRequest.put("topic", "USER_" + shipment.getSenderId());
+
+            restTemplate.postForObject(notificationUrl, notifRequest, String.class);
+            log.info("Đã bắn yêu cầu gửi thông báo 'Đến lấy hàng' cho khách ID: {}", shipment.getSenderId());
+        } catch (Exception e) {
+            log.error("Lỗi khi gọi Notification Service: {}", e.getMessage());
+        }
+    }
+
 
     private ShipmentResponseDTO mapToDTO(Shipment shipment) {
         List<String> imageUrls = shipment.getPackageImages().stream()

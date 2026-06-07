@@ -16,7 +16,6 @@ public class UploadController {
     @Autowired
     private GcsStorageService gcsStorageService;
 
-    // 🎯 ĐÂY CHÍNH LÀ CÁI "TRẠM NHẬN ẢNH" MÀ FLUTTER ĐANG TÌM KIẾM
     @PostMapping("/upload-image")
     public ResponseEntity<Map<String, String>> uploadSingleImage(@RequestParam("file") MultipartFile file) {
         try {

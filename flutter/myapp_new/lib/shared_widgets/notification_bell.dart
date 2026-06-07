@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart'; // Thêm dòng này
 import '../../core/services/api_service.dart';
 import '../../core/utils/session_manager.dart';
-import '../features/sender/notifications/notification_screen.dart'; 
+import '../features/sender/notifications/notification_screen.dart';
 
 class NotificationBell extends StatefulWidget {
   const NotificationBell({super.key});
@@ -22,9 +22,11 @@ class _NotificationBellState extends State<NotificationBell> {
     _fetchUnreadCount();
 
     // 🎧 Lắng nghe thông báo mới khi app đang mở (Foreground)
-    _fcmSubscription = FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    _fcmSubscription = FirebaseMessaging.onMessage.listen((
+      RemoteMessage message,
+    ) {
       debugPrint("🔔 Có thông báo mới tới, cập nhật lại chuông!");
-      _fetchUnreadCount(); 
+      _fetchUnreadCount();
     });
   }
 
@@ -61,12 +63,14 @@ class _NotificationBellState extends State<NotificationBell> {
           onPressed: () async {
             await Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const NotificationScreen()),
+              MaterialPageRoute(
+                builder: (context) => const NotificationScreen(),
+              ),
             );
-            _fetchUnreadCount(); 
+            _fetchUnreadCount();
           },
         ),
-        
+
         if (_unreadCount > 0)
           Positioned(
             right: 8,

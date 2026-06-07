@@ -17,6 +17,7 @@ public class ShipmentRequestDTO {
     private double deliveryLatitude;
     private String packageDescription;
     private BigDecimal packageValue;
-    private List<String> imageUrls; // Danh sách URL ảnh [cite: 143]
+    private List<String> imageUrls;
     private String vehicleType;
+    private String voucherCode;
 }

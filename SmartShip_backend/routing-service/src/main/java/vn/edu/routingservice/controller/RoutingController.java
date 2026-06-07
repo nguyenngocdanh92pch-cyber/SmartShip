@@ -1,5 +1,6 @@
 package vn.edu.routingservice.controller;
 
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +15,6 @@ public class RoutingController {
 
     private final RoutingService routingService;
 
-    // 1. API dành cho khách hàng (Sender)
     @GetMapping("/estimate")
     public ResponseEntity<RoutingService.RouteEstimate> estimateRoute(
             @RequestParam double originLng,
@@ -23,29 +23,28 @@ public class RoutingController {
             @RequestParam double destLat,
             @RequestParam String vehicleType) {
 
+        // Truyền thêm loại xe và tọa độ điểm đi vào dịch vụ tính toán
         RoutingService.RouteEstimate estimate = routingService.calculateDistanceAndCost(
                 originLng, originLat, destLng, destLat, vehicleType);
         return ResponseEntity.ok(estimate);
     }
 
-    // 2. API dành cho Tài xế (Driver) - Đã thêm vehicleType
     @GetMapping("/driver/estimate")
-    public ResponseEntity<RoutingService.RouteEstimate> estimateRouteForDriver(
+    public ResponseEntity<RoutingService.RouteEstimate> estimateRoute(
             @RequestParam double originLng,
             @RequestParam double originLat,
             @RequestParam double destLng,
-            @RequestParam double destLat,
-            @RequestParam String vehicleType) { // 🌟 Đã khai báo nhận biến vehicleType
+            @RequestParam double destLat) {
 
-        RoutingService.RouteEstimate estimate = routingService.calculateDistanceAndCost(
-                originLng, originLat, destLng, destLat, vehicleType); // 🌟 Đã truyền đủ 5 tham số
+        // Truyền 4 tọa độ xuống cho Service tính toán
+        RoutingService.RouteEstimate estimate = routingService.calculateDistanceForDriver(originLng, originLat, destLng, destLat);
         return ResponseEntity.ok(estimate);
     }
 
-    // 3. API dành cho tài xế: Tối ưu hóa thứ tự các điểm lấy/giao hàng
+    // API dành cho tài xế: Tối ưu hóa thứ tự các điểm lấy/giao hàng
     @GetMapping("/optimize")
     public ResponseEntity<RoutingService.DirectionsRoute> optimizeRoute(
-            @RequestParam String coordinates) {
+            @RequestParam String coordinates) { // 🌟 Chỉ nhận 1 chuỗi đã nối sẵn từ Flutter
 
         RoutingService.DirectionsRoute optimizedRoute =
                 routingService.optimizeDriverRoute(coordinates);

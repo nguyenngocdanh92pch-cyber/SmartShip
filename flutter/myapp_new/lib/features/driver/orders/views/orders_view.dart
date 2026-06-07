@@ -25,6 +25,9 @@ class _OrdersViewState extends State<OrdersView> {
   final MapController _mapController = MapController();
   final String apiGatewayUrl = ApiConfig.baseUrl;
 
+  // Thêm biến này để lưu lại những ID đơn hàng đã bấm nút "Đã đến nơi"
+  final Set<int> _notifiedPickupOrders = {};
+
   // State quản lý lộ trình và định vị
   LatLng? driverLocation;
   StreamSubscription<Position>? _positionStream;
@@ -277,10 +280,7 @@ class _OrdersViewState extends State<OrdersView> {
     }
   }
 
-  // =========================================================================
-  // 🚀 ĐÃ SỬA: ĐỔI "VỀ KHO" THÀNH "GIAO THÀNH CÔNG" (DELIVERED)
-  // =========================================================================
-  Future<void> _confirmDelivery() async {
+  Future<void> _confirmAtWarehouse() async {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -290,8 +290,7 @@ class _OrdersViewState extends State<OrdersView> {
     int successCount = 0;
     for (int i = 0; i < _currentStopIndex; i++) {
       var order = optimizedOrders[i];
-      // 🎯 Chuyển thẳng sang DELIVERED thay vì AT_WAREHOUSE
-      bool success = await _updateShipmentStatus(order.id, "DELIVERED");
+      bool success = await _updateShipmentStatus(order.id, "AT_WAREHOUSE");
       if (success) successCount++;
     }
 
@@ -306,6 +305,51 @@ class _OrdersViewState extends State<OrdersView> {
         isLoading = true;
       });
       _fetchAndOptimizeRoute();
+    }
+  }
+
+  // Hàm gọi API gửi thông báo khách ra nhận hàng
+  Future<void> _notifyArrivedAtPickup(ShipmentModel order) async {
+    // Nếu đã thông báo rồi thì không gọi API nữa
+    if (_notifiedPickupOrders.contains(order.id)) return;
+
+    try {
+      final driverId = await SessionManager.getUserId();
+      final token = await SessionManager.getToken();
+
+      final response = await http.post(
+        Uri.parse('$apiGatewayUrl/shipments/${order.id}/arrived-pickup'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+          'X-User-Id': driverId.toString(),
+        },
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          _notifiedPickupOrders.add(order.id); // Đánh dấu là đã báo
+        });
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text("Đã gửi thông báo đến người gửi!"),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      } else {
+        throw Exception("Lỗi khi gửi thông báo");
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Không thể gửi thông báo, vui lòng thử lại."),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -327,6 +371,7 @@ class _OrdersViewState extends State<OrdersView> {
       ),
       extendBodyBehindAppBar: true,
 
+      // 🌟 CẤU TRÚC ĐIỀU KIỆN CHUẨN XÁC
       body: isDriverOffline
           ? Center(
               child: Column(
@@ -420,11 +465,10 @@ class _OrdersViewState extends State<OrdersView> {
                               Padding(
                                 padding: const EdgeInsets.all(16.0),
                                 child: PickedUpSlider(
-                                  // 🚀 ĐÃ SỬA: Thay chữ "Về kho" thành "Giao Thành Công"
                                   text: _allPickedUp
-                                      ? 'Vuốt để báo Giao Thành Công'
-                                      : 'Chốt ca & Đi giao hàng',
-                                  onConfirm: _confirmDelivery,
+                                      ? 'Vuốt để báo Đã về Kho'
+                                      : 'Chốt ca & Về kho sớm',
+                                  onConfirm: _confirmAtWarehouse,
                                 ),
                               ),
                           ],
@@ -650,7 +694,7 @@ class _OrdersViewState extends State<OrdersView> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                "Tiền thu: \$${order.shippingCost}",
+                "Tiền thu: ${order.shippingCost} đ",
                 style: const TextStyle(
                   color: Colors.greenAccent,
                   fontWeight: FontWeight.bold,
@@ -664,6 +708,38 @@ class _OrdersViewState extends State<OrdersView> {
           ),
           if (isActive) ...[
             const SizedBox(height: 16),
+
+            // 🌟 NÚT "ĐÃ ĐẾN NƠI" MỚI THÊM VÀO 🌟
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  // Đổi màu thành xám nếu đã bấm rồi, màu xanh nếu chưa bấm
+                  backgroundColor: _notifiedPickupOrders.contains(order.id)
+                      ? Colors.grey
+                      : AppColors.primary,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                onPressed: _notifiedPickupOrders.contains(order.id)
+                    ? null // Khóa nút lại nếu đã bấm
+                    : () => _notifyArrivedAtPickup(order),
+                child: Text(
+                  _notifiedPickupOrders.contains(order.id)
+                      ? "ĐÃ THÔNG BÁO CHO KHÁCH"
+                      : "ĐÃ ĐẾN NƠI",
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16), // Khoảng cách giữa nút và slider
+
             PickedUpSlider(
               text: 'Vuốt khi lấy xong hàng',
               onConfirm: () => _confirmPickUp(index),

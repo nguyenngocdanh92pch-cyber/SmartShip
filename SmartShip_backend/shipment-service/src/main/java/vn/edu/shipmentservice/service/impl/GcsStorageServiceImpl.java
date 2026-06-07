@@ -18,7 +18,7 @@ import java.util.UUID;
 public class GcsStorageServiceImpl implements GcsStorageService {
 
     private final String bucketName;
-    private Storage storage; // Bỏ final để khởi tạo an toàn trong try-catch
+    private Storage storage;
 
     public GcsStorageServiceImpl(
             @Value("${google.cloud.storage.bucket-name:smartship-images-bucket}") String bucketName,

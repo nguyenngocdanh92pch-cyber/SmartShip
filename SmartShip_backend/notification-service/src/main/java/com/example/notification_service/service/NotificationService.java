@@ -19,11 +19,11 @@ import java.time.LocalDateTime;
 public class NotificationService {
 
     private final NotificationRepository repository;
-    private final RestTemplate restTemplate; // Giữ lại RestTemplate để gọi sang User-Service
+    private final RestTemplate restTemplate;
 
     public void sendPushNotification(NotificationRequest request) {
         try {
-            // 1. TẠO HỘP THƯ CHUẨN FIREBASE + DÁN MÁC KHẨN CẤP (HIGH PRIORITY)
+            // 1. TẠO HỘP THƯ CHUẨN FIREBASE + DÁN MÁC KHẨN CẤP
             Message.Builder messageBuilder = Message.builder()
                     .setNotification(Notification.builder()
                             .setTitle(request.getTitle())
@@ -33,7 +33,6 @@ public class NotificationService {
                             .setPriority(AndroidConfig.Priority.HIGH)
                             .build());
 
-            // Tự động phân loại: Gửi đích danh (Token) hoặc gửi theo nhóm (Topic)
             boolean isTopic = false;
             if (request.getTargetToken() != null && !request.getTargetToken().isEmpty()) {
                 messageBuilder.setToken(request.getTargetToken());
@@ -44,20 +43,32 @@ public class NotificationService {
                 throw new IllegalArgumentException("Thiếu địa chỉ: Phải có Token hoặc Topic!");
             }
 
-            // 2. NHẤN NÚT GỬI QUA SERVER GOOGLE FIREBASE
+            // 2. BẮN FIREBASE ĐỂ KÍU CHUÔNG
             Message message = messageBuilder.build();
             String response = FirebaseMessaging.getInstance().send(message);
             System.out.println("Đã bắn thông báo Firebase! Phản hồi: " + response);
 
             // ===============================================================
-            // 3. GHI VÀO SỔ XỐ (LOG) - GỘP LOGIC CỦA CẢ 2 BẢN
+            // 3. LOGIC GHI SỔ THÔNG MINH (BẢO VỆ CHUÔNG ĐỎ)
             // ===============================================================
-            if (isTopic) {
-                // TRƯỜNG HỢP A: GỬI THEO TOPIC (GỌI SANG USER-SERVICE ĐỂ LẤY ID)
+            if (request.getUserId() != null) {
+                // TRƯỜNG HỢP A: ĐÃ CÓ SẴN USER ID (Từ App Tài Xế bắn qua) -> LƯU LUÔN
+                NotificationLog log = NotificationLog.builder()
+                        .userId(request.getUserId())
+                        .isRead(false)
+                        .targetToken(isTopic ? "TOPIC: " + request.getTopic() : request.getTargetToken())
+                        .title(request.getTitle())
+                        .body(request.getBody())
+                        .sentAt(LocalDateTime.now())
+                        .build();
+                repository.save(log);
+                System.out.println("✅ Đã lưu sổ thông báo cá nhân cho userId: " + request.getUserId());
+
+            } else if (isTopic) {
+                // TRƯỜNG HỢP B: KHÔNG CÓ USER ID (Khuyến mãi Admin) -> HỎI USER SERVICE
                 String userServiceUrl = "http://localhost:8080/users/ids-by-topic?topic=" + request.getTopic();
                 try {
                     Long[] realUserIds = restTemplate.getForObject(userServiceUrl, Long[].class);
-
                     if (realUserIds != null && realUserIds.length > 0) {
                         for (Long userId : realUserIds) {
                             NotificationLog log = NotificationLog.builder()
@@ -75,19 +86,6 @@ public class NotificationService {
                 } catch (Exception apiEx) {
                     System.err.println("❌ Lỗi khi gọi sang User Service lấy ID: " + apiEx.getMessage());
                 }
-            } else {
-                // TRƯỜNG HỢP B: GỬI THEO TOKEN CÁ NHÂN (ĐÃ ĐƯỢC SỬA)
-                NotificationLog log = NotificationLog.builder()
-                        .userId(request.getUserId()) // 🔥 ĐÃ MỞ KHÓA VÀ LƯU USER ID VÀO ĐÂY!
-                        .targetToken(request.getTargetToken())
-                        .title(request.getTitle())
-                        .body(request.getBody())
-                        .isRead(false)
-                        .sentAt(LocalDateTime.now())
-                        .build();
-
-                repository.save(log);
-                System.out.println("✅ Đã lưu sổ thông báo cá nhân cho userId: " + request.getUserId() + " thành công!");
             }
 
         } catch (FirebaseMessagingException | IllegalArgumentException e) {

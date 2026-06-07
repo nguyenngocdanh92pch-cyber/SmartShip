@@ -21,13 +21,11 @@ spring:
       port: 6379
 
   ai:
-    # 🌟 Dùng khung OpenAI nhưng trỏ đường dẫn về máy chủ Groq
     openai:
       api-key: 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
       base-url: https://api.groq.com/openai
       chat:
         options:
-          # Dùng mô hình Llama 3 cực kỳ thông minh của Meta
           model: llama-3.3-70b-versatile
 
     vectorstore:

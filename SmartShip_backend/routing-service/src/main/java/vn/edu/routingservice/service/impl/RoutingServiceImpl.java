@@ -58,9 +58,7 @@ public class RoutingServiceImpl implements RoutingService {
         return new RouteEstimate("0 km", "0 phút", BigDecimal.ZERO);
     }
 
-    // ==============================================================
-    // 2. HÀM TÍNH KHOẢNG CÁCH CHO TÀI XẾ (KHÔNG TÍNH TIỀN)
-    // ==============================================================
+
     @Override
     public RouteEstimate calculateDistanceForDriver(double originLng, double originLat, double destLng, double destLat) {
         try {
@@ -78,7 +76,7 @@ public class RoutingServiceImpl implements RoutingService {
                 return new RouteEstimate(
                         String.format("%.1f km", distanceKm),
                         String.format("%.0f phút", durationSeconds / 60),
-                        null // 👉 Tài xế chỉ cần xem khoảng cách, không cần xem cước nên gán null
+                        null
                 );
             }
         } catch (Exception e) {
@@ -118,9 +116,7 @@ public class RoutingServiceImpl implements RoutingService {
         }
     }
 
-    // ==============================================================
-    // CÁC HÀM BỔ TRỢ XỬ LÝ LOGIC GIÁ CƯỚC NÂNG CAO
-    // ==============================================================
+
 
     private BigDecimal calculateAdvancedShippingFee(double distanceKm, String vehicleType, double originLng, double originLat) {
         // 1. Lấy cấu hình cơ bản từ CSDL

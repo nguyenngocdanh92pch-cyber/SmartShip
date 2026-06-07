@@ -46,7 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     _getCurrentLocation();
-    
+
     // 🎯 GỌI HÀM CẮM ĂNG-TEN NHẬN THÔNG BÁO FIREBASE
     _setupFirebaseMessaging();
 
@@ -86,11 +86,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       debugPrint('✅ Tài xế đã cấp quyền nhận thông báo');
-      
+
       // 2. Đăng ký các kênh phát thanh
       await messaging.subscribeToTopic('drivers');
       await messaging.subscribeToTopic('all_users');
-      
+
       // Cắm thêm ăng-ten cá nhân (Dành cho trường hợp Backend muốn gửi riêng cho 1 tài xế này)
       int? driverId = await SessionManager.getUserId();
       if (driverId != null) {
@@ -102,14 +102,18 @@ class _HomeScreenState extends State<HomeScreen> {
       // =======================================================
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
         debugPrint('📩 Nhận thông báo Firebase khi đang mở app!');
-        
+
         if (message.notification != null) {
           // Tự động văng ra một cái bảng nổi (SnackBar) trên màn hình
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Row(
                 children: [
-                  const Icon(Icons.notifications_active, color: Colors.white, size: 28),
+                  const Icon(
+                    Icons.notifications_active,
+                    color: Colors.white,
+                    size: 28,
+                  ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -117,33 +121,38 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          message.notification!.title ?? 'Thông báo mới', 
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
+                          message.notification!.title ?? 'Thông báo mới',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          message.notification!.body ?? '', 
-                          maxLines: 2, 
-                          overflow: TextOverflow.ellipsis
+                          message.notification!.body ?? '',
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
-              backgroundColor: AppColors.primary, // Đổi màu xanh cho đồng bộ app
+              backgroundColor:
+                  AppColors.primary, // Đổi màu xanh cho đồng bộ app
               behavior: SnackBarBehavior.floating, // Cho nó nổi lềnh phềnh
               margin: const EdgeInsets.all(16),
               duration: const Duration(seconds: 4), // 4 giây sau tự tắt
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
             ),
           );
-          
+
           // 🎯 Ép load lại giao diện để cái chuông trên cùng nhảy số ngay lập tức
-          setState(() {}); 
+          setState(() {});
         }
       });
-
     } else {
       debugPrint('❌ Tài xế từ chối cấp quyền thông báo');
     }
@@ -490,7 +499,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Text(
-                      "You are currently Online & receiving requests",
+                      "bạn đang online & nhận đơn hàng",
                       style: TextStyle(color: Colors.white, fontSize: 12),
                     ),
                   ),

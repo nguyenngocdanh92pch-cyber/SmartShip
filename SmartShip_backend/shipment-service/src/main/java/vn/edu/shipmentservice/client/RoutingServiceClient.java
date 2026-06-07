@@ -11,13 +11,10 @@ public class RoutingServiceClient {
 
     private final RestTemplate restTemplate;
 
-    // Gọi qua cổng 8080 của API Gateway. Gateway sẽ tự biết đẩy sang Routing Service.
     private final String API_GATEWAY_URL = "http://localhost:8080/routing";
 
-    // 🌟 Đã thêm String vehicleType vào tham số
     public RouteEstimateDTO getEstimate(double originLng, double originLat, double destLng, double destLat, String vehicleType) {
 
-        // 🌟 Nối thêm &vehicleType=%s vào chuỗi URL format
         String url = String.format("%s/estimate?originLng=%s&originLat=%s&destLng=%s&destLat=%s&vehicleType=%s",
                 API_GATEWAY_URL, originLng, originLat, destLng, destLat, vehicleType);
 

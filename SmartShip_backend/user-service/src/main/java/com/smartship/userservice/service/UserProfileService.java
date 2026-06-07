@@ -17,7 +17,7 @@ public class UserProfileService {
     @Autowired
     private UserProfileRepository profileRepository;
 
-    @Autowired // 🚀 Quan trọng: Đã lấy từ Bản 2 để fix lỗi NullPointerException
+    @Autowired
     private TierConfigRepository configRepository;
 
     // HÀM LẤY TẤT CẢ HỒ SƠ
