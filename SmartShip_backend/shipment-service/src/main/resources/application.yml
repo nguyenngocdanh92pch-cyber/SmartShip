@@ -49,7 +49,7 @@ vnpay:
   hashSecret: 803GSXDSSBGRF9CX9CLPO659AA6SF4PR
   payUrl: https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
   # Link này VNPay sẽ gọi về sau khi khách quét mặt hoặc quẹt thẻ xong (Qua cổng API Gateway 8080)
-  returnUrl: http://192.168.1.16:8080/shipments/payments/vnpay-return
+  returnUrl: http://192.168.1.12:8080/shipments/payments/vnpay-return
 
 logging:
   level:

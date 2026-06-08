@@ -47,8 +47,9 @@ public class ShipmentServiceImpl implements ShipmentService {
     private final GcsStorageService gcsStorageService;
     private final WalletService walletService;
     private final AuthServiceClient authServiceClient;
-    VoucherRepository voucherRepository;
 
+    @Autowired
+    private VoucherRepository voucherRepository;
 
     @Autowired
     private UserServiceClient userServiceClient;

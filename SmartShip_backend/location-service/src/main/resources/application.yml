@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/location_service_db
+    url: jdbc:postgresql://localhost:5432/smartship_db
     username: postgres
     password: Abc123456
     driver-class-name: org.postgresql.Driver
