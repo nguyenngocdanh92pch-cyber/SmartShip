@@ -1,50 +1,64 @@
-# 🚀 SmartShip - Hệ thống Giao nhận Thông minh[cite: 1]
+# 🚀 SmartShip - Hệ thống Giao nhận Thông minh
 
 ## 📖 Giới thiệu
-SmartShip là một nền tảng di động kết nối "Người Gửi hàng" (cá nhân, cửa hàng) với "Người Giao hàng" (tài xế tự do), giúp quy trình gửi và nhận hàng trở nên nhanh chóng, minh bạch và hiệu quả[cite: 1]. Hệ thống được thiết kế theo mô hình Client-Server kết hợp với kiến trúc Microservices để đảm bảo hiệu năng cao, dễ dàng bảo trì và mở rộng khi lượng người dùng tăng cao[cite: 2].
+SmartShip là nền tảng di động đa nền tảng kết nối "Người Gửi hàng" với "Người Giao hàng", giúp quy trình vận chuyển trở nên minh bạch và hiệu quả. Hệ thống được xây dựng trên kiến trúc Microservices có khả năng mở rộng cao, tích hợp công nghệ theo dõi thời gian thực, tối ưu lộ trình và trợ lý ảo AI để nâng cao trải nghiệm người dùng.
 
-## 🏗️ Cấu trúc dự án (Repository Structure)
-Dự án được tổ chức thành các phân hệ riêng biệt, phân tách rõ ràng vai trò:
-- 📁 **`SmartShip_backend/`**: Mã nguồn hệ thống API Backend được xây dựng theo kiến trúc Microservices[cite: 2].
-- 📁 **`flutter/myapp_new/`**: Mã nguồn ứng dụng di động đa nền tảng (Cross-platform) dành cho cả Người Gửi và Người Giao hàng[cite: 2].
-- 📁 **`smartship-admin/`**: Mã nguồn trang quản trị (Admin Portal) giúp theo dõi và vận hành toàn bộ hoạt động của nền tảng[cite: 1].
+## 📸 Giao diện Hệ thống (Screenshots)
 
-## 🛠️ Công nghệ & Kiến trúc (Tech Stack & Architecture)
-Dự án áp dụng các công nghệ hiện đại nhằm đảm bảo tính toàn vẹn dữ liệu và trải nghiệm người dùng tối ưu:
+### 📦 Luồng Người Gửi (Sender Flow)
+*Trải nghiệm đặt đơn nhanh chóng, trực quan và theo dõi trạng thái giao hàng theo thời gian thực.*
 
-- **Mobile Client:** Flutter (Dart) cho phép chạy mượt mà trên cả iOS và Android[cite: 2].
-- **Web Admin:** ReactJS kết hợp với Tailwind CSS mang lại giao diện Dashboard hiện đại, chuẩn UI/UX.
-- **Backend Architecture:** Java (Spring Boot) triển khai theo kiến trúc Microservices (Bao gồm các service độc lập: API Gateway, Auth, User, Shipment, Location, Notification, Routing Service)[cite: 2].
+| Đăng nhập hệ thống | Chọn địa chỉ & Phương tiện | Chi tiết thanh toán | Theo dõi đơn hàng |
+|:---:|:---:|:---:|:---:|
+| <img src="image_6f1de7.jpg" width="200" alt="Đăng nhập"> | <img src="image_6f1e0a.jpg" width="200" alt="Tạo đơn"> | <img src="image_6f1e24.jpg" width="200" alt="Thanh toán"> | <img src="image_6f1e29.jpg" width="200" alt="Theo dõi"> |
+| *Giao diện xác thực* | *Giao diện nhập thông tin* | *Ước tính phí & Khuyến mãi* | *Quản lý chuyến đi* |
+
+### 🛵 Luồng Người Giao Hàng (Driver Flow)
+*Tối ưu hóa hành trình, hỗ trợ định vị chính xác và tương tác linh hoạt với khách hàng.*
+
+| Trực tuyến nhận đơn | Định vị & Lộ trình | Tương tác khách hàng | Cập nhật trạng thái |
+|:---:|:---:|:---:|:---:|
+| <img src="image_6f1e44.jpg" width="200" alt="Trực tuyến"> | <img src="image_6f1e63.jpg" width="200" alt="Lộ trình"> | <img src="1789635790351_186156117467684517_3027660837223229236_bfb1c81941631df40d76e492bad0834c.jpg" width="200" alt="Thông báo"> | <img src="1789635790310_186156117467684517_3027660837223229236_5897c26a4535898a73c7bac7ffb08554.jpg" width="200" alt="Lấy hàng"> |
+| *Quét đơn hàng lân cận* | *Bản đồ lộ trình tối ưu* | *Báo cáo vị trí điểm đến* | *Xác nhận lấy hàng* |
+
+### 🤖 Trợ lý Ảo Thông Minh (SmartShip AI)
+<img src="image_6f25a6.jpg" width="250" alt="SmartShip AI">
+
+*Trợ lý AI hỗ trợ giải đáp tự động về giá cước, lộ trình và các vấn đề vận chuyển.*
+
+## 🛠️ Công nghệ & Kiến trúc (Tech Stack)
+- **Backend Architecture:** Phát triển bằng Spring Boot theo kiến trúc Microservices có tính mở rộng cao, định tuyến tập trung qua API Gateway.
 - **Cơ sở dữ liệu (Database Strategy):**
-  - **PostgreSQL:** Lưu trữ dữ liệu có cấu trúc quan hệ (thông tin người dùng, đơn hàng)[cite: 2].
-  - **MongoDB / DynamoDB:** Lưu trữ dữ liệu vị trí GPS theo chuỗi thời gian để dễ dàng truy vấn[cite: 2].
-  - **Redis:** Xử lý Caching và cơ chế Pub-Sub truyền tin real-time cho việc cập nhật vị trí lên bản đồ[cite: 2].
-- **Tích hợp bên thứ ba (Third-party Integrations):** 
-  - Mapbox API / Google Maps (Bản đồ & Routing)[cite: 2].
-  - Firebase Cloud Messaging (FCM cho Push Notifications)[cite: 2].
-  - AWS S3 / Google Cloud Storage (Lưu trữ hình ảnh kiện hàng, avatar)[cite: 2].
-  - Cổng thanh toán VNPay.
+  - **PostgreSQL:** Lưu trữ dữ liệu giao dịch có cấu trúc (thông tin người dùng, đơn hàng).
+  - **MongoDB:** Lưu trữ và truy vấn chuỗi thời gian cho dữ liệu vị trí GPS.
+  - **Redis:** Xử lý truyền tải dữ liệu thời gian thực cho tính năng theo dõi tài xế.
+- **Frontend / Client:**
+  - **Mobile App:** Flutter (Cross-platform) dành cho cả Người Gửi và Người Giao hàng.
+  - **Admin Web:** ReactJS.
+- **Tích hợp bên thứ ba (Integrations):**
+  - Mapbox / Google Maps API (Tối ưu lộ trình).
+  - VNPay API (Cổng thanh toán trực tuyến).
+  - RESTful API & Groq API.
 
 ## ✨ Tính năng nổi bật (Key Features)
+- **Quy trình vận hành liền mạch:** Xử lý toàn bộ vòng đời đơn hàng từ lúc đặt, tính toán chi phí, cho đến khi hoàn thành.
+- **Tracking Real-time:** Ứng dụng Redis để phát tín hiệu vị trí, giúp Người Gửi xem tài xế di chuyển trực tiếp trên bản đồ.
+- **Tối ưu lộ trình & Điều phối:** Gợi ý chuyến đi ngắn nhất cho tài xế dựa trên Mapbox/Google Maps.
+- **SmartShip AI (RAG):** Chatbot hỗ trợ khách hàng được trợ lực bởi AI, ứng dụng kiến trúc Retrieval-Augmented Generation (RAG) qua Groq API, cung cấp câu trả lời chính xác, nhận thức ngữ cảnh.
+- **Thanh toán bảo mật:** Tích hợp cổng VNPay cho các giao dịch không tiền mặt.
 
-### 📦 Dành cho Người Gửi (Sender)[cite: 1]
-- **Tạo đơn hàng thông minh:** Chụp ảnh kiện hàng, hệ thống tự động đề xuất chi phí vận chuyển dựa trên khoảng cách và kích thước[cite: 1].
-- **Theo dõi Real-time:** Xem trạng thái đơn hàng và vị trí của Người Giao hàng đang đến lấy hàng trực tiếp trên bản đồ trực quan[cite: 1].
-- **Tích điểm & Đánh giá:** Tích điểm thưởng cho tài xế dựa trên mức độ hài lòng sau mỗi chuyến đi thành công[cite: 1].
+## ⚙️ Hướng dẫn Cài đặt (Installation & Setup)
 
-### 🛵 Dành cho Người Giao hàng (Driver)[cite: 1]
-- **Tối ưu lộ trình (Routing Optimization):** Tự động tính toán và đề xuất lộ trình lấy hàng tối ưu nhất khi nhận nhiều đơn cùng lúc, tiết kiệm chi phí và thời gian[cite: 1].
-- **Cập nhật trạng thái linh hoạt:** Cập nhật các mốc trạng thái (Đã lấy hàng, Đã về kho), gửi thông báo "Tôi đã đến" qua app[cite: 1].
-- **Quản lý thu nhập:** Bảng thống kê chi tiết tổng thu nhập theo ngày/tuần/tháng và quản lý điểm thưởng tích lũy[cite: 1].
+Để triển khai hệ thống cục bộ, bạn cần cài đặt: **Java (JDK 17+)**, **Node.js**, **Flutter SDK**, cùng các hệ quản trị cơ sở dữ liệu (PostgreSQL, MongoDB, Redis).
 
-### 💻 Dành cho Quản trị viên (Admin)[cite: 1]
-- **Dashboard Tổng quan:** Theo dõi các chỉ số quan trọng (tổng đơn hàng, người dùng mới, doanh thu)[cite: 1].
-- **Quản trị người dùng & Giao dịch:** Duyệt hồ sơ tài xế, quản lý toàn bộ luồng đơn hàng và giải quyết các vấn đề phát sinh[cite: 1].
+### 1. Cài đặt Backend (Spring Boot Microservices)
+```bash
+# Di chuyển vào thư mục backend
+cd SmartShip_backend
 
-## 👥 Đội ngũ phát triển (Contributors)
-- **Danh (nguyenngocdanh92pch-cyber)** - *Software Engineer*
-- **minhxuan07082005-lang**
-- **CuongDepTrai12390**
+# Cấu hình môi trường: 
+# Cập nhật thông tin kết nối DB (Postgres, Mongo, Redis), VNPay Keys và Groq API Key trong file application.yml / application.properties.
 
----
-*Dự án được xây dựng với mục tiêu ứng dụng thực tiễn các kiến thức về phát triển phần mềm, thiết kế hệ thống phân tán và quản lý quy trình vận hành chuỗi cung ứng.*
+# Build và chạy ứng dụng
+./mvnw clean install
+./mvnw spring-boot:run
